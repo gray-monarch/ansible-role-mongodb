@@ -1,0 +1,7 @@
+---
+
+- name: Test the mongodb role against all
+  hosts: "{{ host_name | default('mongodb_servers') }}"
+
+  roles:
+    - role: "{{ role_name | default('../../ansible-role-mongodb') }}"
