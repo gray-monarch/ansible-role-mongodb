@@ -1,0 +1,7 @@
+---
+
+gm_mongodb_gpg_key: https://www.mongodb.org/static/pgp/server-3.2.asc
+gm_mongodb_repo: https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.2/x86_64/
+gm_mongodb_dist_dep_pkgs:
+  - epel-release
+  - policycoreutils-python

@@ -1,2 +1,12 @@
 ---
 # handlers file for ansible-role-mongodb
+
+- name: Restart the MongoDB service
+  service:
+    name: mongod
+    state: restarted
+
+# Upgrade this to 'systemd' module after 2.2 launch
+- name: Reload systemd unit definitions
+  command: systemctl daemon-reload
+  become: yes

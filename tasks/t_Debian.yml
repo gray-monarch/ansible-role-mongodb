@@ -1,0 +1,26 @@
+---
+# Debian specific tasks
+
+- name: Ensure the MongoDB repository key has been imported [Debian]
+  apt_key:
+    keyserver: "{{ gm_mongodb_keyserver }}"
+    id: "{{ gm_mongodb_gpg_key }}"
+  when: gm_mongodb_latest == true
+
+- name: Ensure the MongoDB repository is present [Debian]
+  apt_repository:
+    repo: "{{ gm_mongodb_repo }}"
+    state: present
+  when: gm_mongodb_latest == true
+  register: installed_repo_result
+
+# It's important to update the apt cache at the earliest chance we get
+# otherwise subsequent package: tasks have a tendency to fail. This
+# "trick" allows us to leverage the liberal options of the apt module
+# to "kill two birds with one stone."
+- name: Update apt cache and/or install dependency packages [Debian]
+  apt:
+    name: "{{ gm_mongodb_dist_dep_pkgs | default(omit) }}"
+    state: "{{ gm_mongodb_dist_dep_pkgs is defined | ternary('present',omit) }}"
+    update_cache: yes
+    cache_valid_time: 300

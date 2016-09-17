@@ -1,2 +1,56 @@
 ---
 # tasks file for ansible-role-mongodb
+
+- include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+
+- include: "{{ item }}"
+  with_first_found:
+    - "t_{{ ansible_distribution }}.yml"
+    - "t_{{ ansible_os_family }}.yml"
+
+- name: Set uninstall/install pkgs vars based on condition
+  set_fact:
+    gm_mongodb_uninstall_pkgs:
+      "{{
+          gm_mongodb_latest |
+          ternary(gm_mongodb_dist_pkgs,gm_mongodb_org_repo_pkgs)
+        }}"
+    gm_mongodb_install_pkgs:
+      "{{
+          gm_mongodb_latest |
+          ternary(gm_mongodb_org_repo_pkgs,gm_mongodb_dist_pkgs)
+        }}"
+
+- name: Ensure old MongoDB packages are uninstalled
+  package:
+    name: "{{ gm_mongodb_uninstall_pkgs }}"
+    autoremove: "{{ (ansible_pkg_mgr == 'apt') | ternary('yes',omit) }}"
+    purge: "{{ (ansible_pkg_mgr == 'apt') | ternary('yes',omit) }}"
+    state: absent
+
+- name: Ensure MongoDB packages are installed
+  package:
+    name: "{{ gm_mongodb_install_pkgs }}"
+    state: present
+
+#- name: Deploy MongoDB service configuration
+#  template:
+#    src: "{{ gm_mongodb_config_template }}"
+#    dest: /etc/mongod.conf
+#  notify: Restart the MongoDB service
+
+- meta: flush_handlers
+
+- name: Ensure the MongoDB service is started/enabled
+  service:
+    # The service is only named 'mongodb' if we use debian packages
+    name:
+      "{{
+          (not gm_mongodb_latest and ansible_os_family == 'Debian')
+          | ternary('mongodb','mongod')
+        }}"
+    state: started
+    enabled: yes

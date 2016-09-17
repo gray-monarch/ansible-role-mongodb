@@ -1,0 +1,28 @@
+---
+# Redhat specific tasks
+
+- name: Add mongodb repository [RedHat]
+  yum_repository:
+    name: mongodb
+    description: MongoDB Repository
+    baseurl: "{{ gm_mongodb_repo }}"
+    gpgkey: "{{ gm_mongodb_gpg_key }}"
+    gpgcheck: yes
+    enabled: yes
+    state: present
+  when: gm_mongodb_latest == true
+  register: installed_repo_result
+
+- name: Ensure required dependency dist packages are installed [RedHat]
+  package:
+    name: "{{ gm_mongodb_dist_dep_pkgs }}"
+    state: present
+  when: gm_mongodb_dist_dep_pkgs is defined
+
+- name: Ensure the SELinux type for the mongodb port is set [RedHat]
+  seport:
+    ports: "{{ gm_mongodb_port }}"
+    proto: tcp
+    setype: mongod_port_t
+    state: present
+  when: ansible_selinux.status == "enabled"

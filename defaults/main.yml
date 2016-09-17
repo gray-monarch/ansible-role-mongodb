@@ -1,2 +1,19 @@
 ---
 # defaults file for ansible-role-mongodb
+
+# Install from mongodb repo switch
+gm_mongodb_latest: false
+
+# Packages from distribution repos
+gm_mongodb_dist_pkgs:
+  - mongodb
+  - mongodb-server
+
+# Packages names from official mongodb.org repos
+gm_mongodb_org_repo_pkgs:
+  - mongodb-org-server
+  - mongodb-org-shell
+
+# TODO: Make this configure mongodb to run on this port
+gm_mongodb_port: 27017
+#gm_mongodb_config_template: mongod.conf.j2
